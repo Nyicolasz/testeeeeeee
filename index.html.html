@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Registro de Faltas</title>
+</head>
+
+<body>
+  <h1>Registrar Falta/Presença</h1>
+
+  <form id="faltaForm">
+    <label>
+      Nome:<br />
+      <input type="text" name="nome" placeholder="Digite o nome" required />
+    </label>
+    <br /><br />
+
+    <label>
+      Data:<br />
+      <input type="date" name="data" required />
+    </label>
+    <br /><br />
+
+    <label>
+      Status:<br />
+      <select name="status" required>
+        <option value="">Selecione</option>
+        <option value="presente">Presente</option>
+        <option value="falta">Falta</option>
+      </select>
+    </label>
+    <br /><br />
+
+    <button type="submit">Enviar</button>
+  </form>
+
+  <script>
+    document.getElementById("faltaForm").addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      const formData = new FormData(event.target);
+      const data = {
+        nome: formData.get("nome"),
+        data: formData.get("data"),
+        status: formData.get("status"),
+      };
+
+      fetch("https://script.google.com/macros/s/AKfycbzO_27uPurQSUJfLtke0jQwrQq7wxKX5E83QyI_b60TfdR0_cdn42SzjAj01hPejrQ7bA/exec", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      })
+        .then((response) => response.json())
+        .then((json) => {
+          if (json.sucesso) {
+            alert("Falta registrada com sucesso!");
+            event.target.reset();
+          } else {
+            alert("Erro: " + json.erro);
+          }
+        })
+        .catch((err) => alert("Erro na requisição: " + err));
+    });
+  </script>
+</body>
+
+</html>
