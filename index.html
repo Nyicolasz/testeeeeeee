@@ -13,7 +13,7 @@
   <form id="faltaForm">
     <label>
       Nome:<br />
-      <input type="text" name="nome" placeholder="Digite o nome" required />
+      <input type="text" name="nome" placeholder="Digite o ome" required />
     </label>
     <br /><br />
 
@@ -41,29 +41,29 @@
       event.preventDefault();
 
       const formData = new FormData(event.target);
-      const data = {
-        nome: formData.get("nome"),
-        data: formData.get("data"),
-        status: formData.get("status"),
-      };
+
+      const params = new URLSearchParams();
+      params.append("nome", formData.get("nome"));
+      params.append("data", formData.get("data"));
+      params.append("status", formData.get("status"));
 
       fetch("https://script.google.com/macros/s/AKfycbzO_27uPurQSUJfLtke0jQwrQq7wxKX5E83QyI_b60TfdR0_cdn42SzjAj01hPejrQ7bA/exec", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/x-www-form-urlencoded",
         },
-        body: JSON.stringify(data),
+        body: params.toString(),
       })
-        .then((response) => response.json())
-        .then((json) => {
+        .then(response => response.json())
+        .then(json => {
           if (json.sucesso) {
-            alert("Falta registrada com sucesso!");
+            alert(json.mensagem);
             event.target.reset();
           } else {
-            alert("Erro: " + json.erro);
+            alert("Erro: " + json.mensagem);
           }
         })
-        .catch((err) => alert("Erro na requisição: " + err));
+        .catch(err => alert("Erro na requisição: " + err));
     });
   </script>
 </body>
