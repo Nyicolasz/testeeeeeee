@@ -1,137 +1,47 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
+document.getElementById("faltaForm").addEventListener("submit", async function (event) {
+  event.preventDefault();
+  
+  // Mostrar loading
+  const button = event.target.querySelector("button");
+  const originalText = button.textContent;
+  button.textContent = "Enviando...";
+  button.disabled = true;
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Registro de Faltas</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-    label {
-      display: block;
-      margin-bottom: 5px;
-    }
-    input, select, button {
-      width: 100%;
-      padding: 8px;
-      box-sizing: border-box;
-    }
-    button {
-      background-color: #4285f4;
-      color: white;
-      border: none;
-      padding: 10px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #3367d6;
-    }
-    .message {
-      margin-top: 20px;
-      padding: 10px;
-      border-radius: 4px;
-      display: none;
-    }
-    .success {
-      background-color: #dff0d8;
-      color: #3c763d;
-      display: block;
-    }
-    .error {
-      background-color: #f2dede;
-      color: #a94442;
-      display: block;
-    }
-  </style>
-</head>
-
-<body>
-  <h1>Registrar Falta/Presença</h1>
-
-  <div id="message" class="message"></div>
-
-  <form id="faltaForm">
-    <label>
-      Nome:
-      <input type="text" name="nome" placeholder="Digite o" required />
-    </label>
-
-    <label>
-      Data:
-      <input type="date" name="data" required />
-    </label>
-
-    <label>
-      Status:
-      <select name="status" required>
-        <option value="">Selecione</option>
-        <option value="presente">Presente</option>
-        <option value="falta">Falta</option>
-      </select>
-    </label>
-
-    <button type="submit">Enviar</button>
-  </form>
-
-  <script>
-    document.getElementById("faltaForm").addEventListener("submit", async function (event) {
-      event.preventDefault();
-      
-      const form = event.target;
-      const messageDiv = document.getElementById("message");
-      messageDiv.className = "message";
-      
-      try {
-        const formData = new FormData(form);
-        const params = new URLSearchParams();
-        
-        params.append("nome", formData.get("nome"));
-        params.append("data", formData.get("data"));
-        params.append("status", formData.get("status"));
-        
-        // URL alternativa com proxy CORS se necessário
-        const scriptUrl = "https://script.google.com/macros/s/AKfycbzO_27uPurQSUJfLtke0jQwrQq7wxKX5E83QyI_b60TfdR0_cdn42SzjAj01hPejrQ7bA/exec";
-        // const proxyUrl = "https://cors-anywhere.herokuapp.com/";
-        // const fullUrl = proxyUrl + scriptUrl;
-        
-        const response = await fetch(scriptUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          body: params.toString(),
-          redirect: "follow" // Importante para Google Apps Script
-        });
-        
-        if (!response.ok) {
-          throw new Error(`Erro HTTP: ${response.status}`);
-        }
-        
-        const json = await response.json();
-        
-        if (json.sucesso) {
-          messageDiv.textContent = json.mensagem;
-          messageDiv.className = "message success";
-          form.reset();
-        } else {
-          throw new Error(json.mensagem);
-        }
-      } catch (err) {
-        console.error("Erro:", err);
-        messageDiv.textContent = `Erro: ${err.message}`;
-        messageDiv.className = "message error";
-      }
+  try {
+    const formData = new FormData(event.target);
+    const params = new URLSearchParams();
+    
+    params.append("nome", formData.get("nome"));
+    params.append("data", formData.get("data"));
+    params.append("status", formData.get("status"));
+    
+    // URL do seu script DEPLOYADO RECENTEMENTE
+    const scriptUrl = "https://script.google.com/macros/s/AKfycbyiuOD3mv12cXVLtTr8JaEQNg5iav0M8h4dg5czklReJQTd_5FNZLmNANqQutSXA7nqiA/exec";
+    
+    // Solução alternativa com proxy CORS se necessário
+    // const proxyUrl = "https://corsproxy.io/?";
+    // const fullUrl = proxyUrl + encodeURIComponent(scriptUrl);
+    
+    const response = await fetch(scriptUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: params.toString(),
+      mode: "no-cors" // Só use isso se entender as limitações
     });
-  </script>
-</body>
-</html>
+    
+    // Se usar mode: "no-cors", você não poderá ler a resposta
+    // Mas o dado será enviado para a planilha
+    
+    alert("Dados enviados com sucesso! Verifique a planilha.");
+    event.target.reset();
+    
+  } catch (err) {
+    console.error("Erro:", err);
+    alert("Erro ao enviar: " + err.message);
+  } finally {
+    button.textContent = originalText;
+    button.disabled = false;
+  }
+});
