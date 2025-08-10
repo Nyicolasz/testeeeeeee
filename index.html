@@ -15,10 +15,10 @@ document.getElementById("faltaForm").addEventListener("submit", async function (
     params.append("data", formData.get("data"));
     params.append("status", formData.get("status"));
     
-    // URL do seu script DEPLOYADO RECENTEMENTE
-    const scriptUrl = "https://script.google.com/macros/s/AKfycbyiuOD3mv12cXVLtTr8JaEQNg5iav0M8h4dg5czklReJQTd_5FNZLmNANqQutSXA7nqiA/exec";
+    // URL corrigida - remova espaços!
+    const scriptUrl = "https://script.google.com/macros/s/AKfycbyiuOD3mv12cXVLtTr8JaEQNgS5iavOM8h4dg5czkIReJQTd_S5FNZLmNANqQutSXA7ngqiA/exec";
     
-    // Solução alternativa com proxy CORS se necessário
+    // Solução com proxy CORS (descomente se necessário)
     // const proxyUrl = "https://corsproxy.io/?";
     // const fullUrl = proxyUrl + encodeURIComponent(scriptUrl);
     
@@ -27,15 +27,22 @@ document.getElementById("faltaForm").addEventListener("submit", async function (
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
       },
-      body: params.toString(),
-      mode: "no-cors" // Só use isso se entender as limitações
+      body: params.toString()
+      // REMOVA o mode: "no-cors" para poder ler a resposta
     });
     
-    // Se usar mode: "no-cors", você não poderá ler a resposta
-    // Mas o dado será enviado para a planilha
+    if (!response.ok) {
+      throw new Error(`Erro HTTP: ${response.status}`);
+    }
     
-    alert("Dados enviados com sucesso! Verifique a planilha.");
-    event.target.reset();
+    const data = await response.json();
+    
+    if (data.success) {
+      alert(data.message);
+      event.target.reset();
+    } else {
+      throw new Error(data.message || "Erro desconhecido");
+    }
     
   } catch (err) {
     console.error("Erro:", err);
