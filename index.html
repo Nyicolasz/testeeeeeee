@@ -1,167 +1,30 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Faltas</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .container {
-            background-color: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #2c3e50;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #34495e;
-        }
-        input, select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-            box-sizing: border-box;
-        }
-        button {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            width: 100%;
-            transition: background-color 0.3s;
-        }
-        button:hover {
-            background-color: #2980b9;
-        }
-        button:disabled {
-            background-color: #95a5a6;
-            cursor: not-allowed;
-        }
-        .alert {
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-            display: none;
-        }
-        .alert-success {
-            background-color: #d4edda;
-            color: #155724;
-            display: block;
-        }
-        .alert-error {
-            background-color: #f8d7da;
-            color: #721c24;
-            display: block;
-        }
-    </style>
-</head>
+<html>
 <body>
-    <div class="container">
-        <h1>Registro de Faltas</h1>
-        
-        <div id="alert" class="alert"></div>
-        
-        <form id="faltaForm">
-            <div class="form-group">
-                <label for="nome">Nome:</label>
-                <input type="text" id="nome" name="nome" placeholder="Digite o nome completo" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="data">Data:</label>
-                <input type="date" id="data" name="data" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="status">Status:</label>
-                <select id="status" name="status" required>
-                    <option value="">Selecione o status</option>
-                    <option value="presente">Presente</option>
-                    <option value="falta">Falta</option>
-                    <option value="atraso">Atraso</option>
-                </select>
-            </div>
-            
-            <button type="submit" id="submitBtn">Registrar</button>
-        </form>
-    </div>
+  <form id="fakeForm" action="https://script.google.com/macros/s/AKfycbzO_27uPurQSUJfLtke0jQwrQq7wxKX5E83QyI_b60TfdR0_cdn42SzjAj01hPejrQ7bA/exec" 
+        method="POST" target="hiddenFrame">
+    <input type="hidden" name="nome" id="hiddenNome">
+    <input type="hidden" name="data" id="hiddenData">
+    <input type="hidden" name="status" id="hiddenStatus">
+  </form>
+  
+  <iframe name="hiddenFrame" style="display:none"></iframe>
 
-    <script>
-        document.getElementById("faltaForm").addEventListener("submit", async function (event) {
-            event.preventDefault();
-            
-            const button = document.getElementById("submitBtn");
-            const alertDiv = document.getElementById("alert");
-            const originalText = button.textContent;
-            
-            // Resetar alerta e mostrar loading
-            alertDiv.className = "alert";
-            alertDiv.textContent = "";
-            button.textContent = "Enviando...";
-            button.disabled = true;
-
-            try {
-                const formData = new FormData(event.target);
-                const params = new URLSearchParams();
-                
-                params.append("nome", formData.get("nome"));
-                params.append("data", formData.get("data"));
-                params.append("status", formData.get("status"));
-                
-                const scriptUrl = "https://script.google.com/macros/s/AKfycbyiuOD3mv12cXVLtTr8JaEQNgS5iavOM8h4dg5czkIReJQTd_S5FNZLmNANqQutSXA7ngqiA/exec";
-                
-                const response = await fetch(scriptUrl, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/x-www-form-urlencoded",
-                    },
-                    body: params.toString()
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`Erro no servidor: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    alertDiv.textContent = data.message || "Registro salvo com sucesso!";
-                    alertDiv.className = "alert alert-success";
-                    event.target.reset();
-                } else {
-                    throw new Error(data.message || "Erro ao processar a requisição");
-                }
-                
-            } catch (err) {
-                console.error("Erro:", err);
-                alertDiv.textContent = "Erro: " + err.message;
-                alertDiv.className = "alert alert-error";
-            } finally {
-                button.textContent = originalText;
-                button.disabled = false;
-            }
-        });
-    </script>
+  <script>
+    document.getElementById("faltaForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      
+      // Preenche os campos ocultos
+      document.getElementById("hiddenNome").value = e.target.nome.value;
+      document.getElementById("hiddenData").value = e.target.data.value;
+      document.getElementById("hiddenStatus").value = e.target.status.value;
+      
+      // Envia o formulário oculto
+      document.getElementById("fakeForm").submit();
+      
+      alert("Dados enviados com sucesso!");
+      e.target.reset();
+    });
+  </script>
 </body>
 </html>
